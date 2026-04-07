@@ -37,7 +37,7 @@ def tech_node(state):
             "content": (
                 f"You are a senior technical interviewer.\n"
                 f"Candidate skills: {skills}\n"
-                f"Ask ONE short challenging technical question under 20 words.\n"
+                f"Ask ONE short challenging and deep technical question based on the mentioned technology under 20 words.\n"
             )
         },
         {"role": "user", "content": user_message}
