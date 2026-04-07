@@ -7,3 +7,4 @@ class State(TypedDict):
     user_id: str   
     skills: List[str]
     chat_id: str
+    username: str
