@@ -3,7 +3,6 @@
 
 # from app.agents.graph import run_graph
 # from app.utils.auth import get_current_user
-# from app.db.connection import chats_collection
 # from app.services.memory_service import save_message, get_chat_history
 # from app.models.chat import ChatRequest
 
@@ -15,69 +14,36 @@
 
 #     message = req.message
 #     user_id = user["user_id"]
+#     username = user["username"]   
 
 #     # Save user message
 #     await save_message(user_id, "user", message)
 
-#     # (optional) fetch history if needed later
+#     # Optional history
 #     history = await get_chat_history(user_id)
 
 #     chat_id = str(uuid4())
-
-#     # Run LangGraph
-#     response = await run_graph(message, user_id, chat_id)
+#     role = user["role"]
+#     #  Pass username into graph
+#     response = await run_graph(
+#         message,
+#         user_id,
+#         chat_id,
+#         username,
+#         role
+#     )
 
 #     # Save assistant response
 #     await save_message(user_id, "assistant", str(response))
 
-#     #  FIX: handle both dict + string properly
-#     return {
-#         "response": response if isinstance(response, dict) else str(response)
-#     }
-
-
-
-
-
-
-# from fastapi import APIRouter, Depends
-# from uuid import uuid4
-
-# from app.agents.graph import run_graph
-# from app.utils.auth import get_current_user
-# from app.services.memory_service import save_message, get_chat_history
-# from app.models.chat import ChatRequest
-
-# router = APIRouter()
-
-
-# @router.post("/")
-# async def chat(req: ChatRequest, user=Depends(get_current_user)):
-
-#     message = req.message
-#     user_id = user["user_id"]
-
-#     # Save user message
-#     await save_message(user_id, "user", message)
-
-#     # (optional) fetch history
-#     history = await get_chat_history(user_id)
-
-#     chat_id = str(uuid4())
-
-#     # Run LangGraph
-#     response = await run_graph(message, user_id, chat_id)
-
-#     # Save assistant response
-#     await save_message(user_id, "assistant", str(response))
-
-#     #  CLEAN RESPONSE HANDLING
+#     #  CLEAN RESPONSE (NO STRINGIFIED JSON)
 #     if isinstance(response, dict):
-#         return response   # ← clean JSON (no "response": wrapper)
+#         return response
 
 #     return {
 #         "response": str(response)
 #     }
+
 
 
 
@@ -100,10 +66,9 @@ router = APIRouter()
 
 @router.post("/")
 async def chat(req: ChatRequest, user=Depends(get_current_user)):
-
     message = req.message
     user_id = user["user_id"]
-    username = user["username"]   
+    username = user["username"]
 
     # Save user message
     await save_message(user_id, "user", message)
@@ -113,7 +78,7 @@ async def chat(req: ChatRequest, user=Depends(get_current_user)):
 
     chat_id = str(uuid4())
     role = user["role"]
-    #  Pass username into graph
+    # Pass username into graph
     response = await run_graph(
         message,
         user_id,
@@ -123,9 +88,12 @@ async def chat(req: ChatRequest, user=Depends(get_current_user)):
     )
 
     # Save assistant response
-    await save_message(user_id, "assistant", str(response))
+    msg_type = "general"
+    if isinstance(response, dict) and "skills" in response:
+        msg_type = "research"
+    await save_message(user_id, "assistant", str(response), msg_type)
 
-    #  CLEAN RESPONSE (NO STRINGIFIED JSON)
+    # CLEAN RESPONSE (NO STRINGIFIED JSON)
     if isinstance(response, dict):
         return response
 
