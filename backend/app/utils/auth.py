@@ -1,8 +1,9 @@
 # from fastapi import Depends, HTTPException
-# from fastapi.security import HTTPBearer
+# from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 # from jose import jwt
 # import os
-# from dotenv import load_dotenv 
+
+# from dotenv import load_dotenv
 
 # load_dotenv()
 
@@ -10,40 +11,43 @@
 # SECRET = os.getenv("JWT_SECRET")
 
 
-# def get_current_user(token=Depends(security)):
+# def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+#     token = credentials.credentials
+
 #     try:
-#         payload = jwt.decode(token.credentials, SECRET, algorithms=["HS256"])
-#         return payload
-#     except:
+#         payload = jwt.decode(token, SECRET, algorithms=["HS256"])
+
+#         return {
+#             "user_id": payload.get("user_id"),
+#             "email": payload.get("sub"),
+#             "username": payload.get("username")   #  ADD THIS
+#         }
+
+#     except Exception:
 #         raise HTTPException(status_code=401, detail="Invalid token")
 
 
 
 
-from fastapi import Depends, HTTPException
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import jwt
+
+from jose import jwt, JWTError
+from fastapi import HTTPException, Depends
+from fastapi.security import HTTPBearer
 import os
-
-from dotenv import load_dotenv
-
-load_dotenv()
 
 security = HTTPBearer()
 SECRET = os.getenv("JWT_SECRET")
 
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    token = credentials.credentials
-
+def get_current_user(token=Depends(security)):
     try:
-        payload = jwt.decode(token, SECRET, algorithms=["HS256"])
+        payload = jwt.decode(token.credentials, SECRET, algorithms=["HS256"])
 
         return {
             "user_id": payload.get("user_id"),
-            "email": payload.get("sub"),
-            "username": payload.get("username")   #  ADD THIS
+            "username": payload.get("username"),
+            "role": payload.get("role")   # ✅ IMPORTANT
         }
 
-    except Exception:
+    except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")

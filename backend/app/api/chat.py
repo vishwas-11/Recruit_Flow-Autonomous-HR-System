@@ -112,13 +112,14 @@ async def chat(req: ChatRequest, user=Depends(get_current_user)):
     history = await get_chat_history(user_id)
 
     chat_id = str(uuid4())
-
+    role = user["role"]
     #  Pass username into graph
     response = await run_graph(
         message,
         user_id,
         chat_id,
-        username
+        username,
+        role
     )
 
     # Save assistant response

@@ -8,3 +8,4 @@ class State(TypedDict):
     skills: List[str]
     chat_id: str
     username: str
+    role: str
