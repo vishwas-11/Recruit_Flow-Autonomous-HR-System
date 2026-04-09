@@ -39,12 +39,11 @@ def router(state):
     # Scheduler trigger
     if any(k in last_message for k in [
         "schedule",
-        "book slot",
-        "set meeting",
+        "book a slot",
+        "set a meeting",
         "meeting",
         "interview schedule",
-        "schedule interview",
-        "interview"
+        "schedule an interview",
     ]):
         return "scheduler"
 
