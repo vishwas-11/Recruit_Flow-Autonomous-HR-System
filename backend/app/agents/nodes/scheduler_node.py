@@ -23,7 +23,7 @@ Message:
 {user_message}
 """
 
-    res = llm.invoke(prompt)
+    res = await llm.ainvoke(prompt)
 
     try:
         data = json.loads(res.content)
