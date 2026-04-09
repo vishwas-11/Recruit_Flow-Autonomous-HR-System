@@ -60,8 +60,8 @@ async def chat(req: ChatRequest, user=Depends(get_current_user)):
         msg_type
     )
 
-    print("RESPONSE TYPE:", type(response))
-    # ALWAYS RETURN SAME SHAPE
+    # print("RESPONSE TYPE:", type(response))
+    
     return {
         "response": response
     }
