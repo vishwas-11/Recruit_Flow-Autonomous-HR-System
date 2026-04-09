@@ -1,6 +1,3 @@
-import os
-
-
 def write_file(path: str, content: str):
     try:
         with open(path, "w", encoding="utf-8") as f:

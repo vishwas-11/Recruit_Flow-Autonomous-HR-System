@@ -3,11 +3,12 @@ from app.db.connection import memory_collection
 from datetime import datetime
 
 
-async def save_message(user_id: str, role: str, content: str):
+async def save_message(user_id: str, role: str, content: str, msg_type: str = "text"):
     await chats_collection.insert_one({
         "user_id": user_id,
         "role": role,
         "content": content,
+        "type": msg_type,
         "timestamp": datetime.utcnow()
     })
 

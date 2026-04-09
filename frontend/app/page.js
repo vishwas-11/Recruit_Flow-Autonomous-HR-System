@@ -480,7 +480,7 @@ export default function Home() {
           margin: "0 auto",
         }}>
           <span style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", color: "rgba(167,243,208,0.35)", letterSpacing: "0.06em" }}>
-            © 2025 RECRUITFLOW — ALL SYSTEMS OPERATIONAL
+            © 2026 RECRUITFLOW — ALL SYSTEMS OPERATIONAL
           </span>
           <div style={{ display: "flex", gap: "24px" }}>
             {["Privacy", "Terms", "Status"].map(l => (

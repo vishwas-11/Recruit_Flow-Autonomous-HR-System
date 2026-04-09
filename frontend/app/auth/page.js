@@ -327,7 +327,7 @@ export default function AuthPage() {
                 <label className="field-label">USERNAME</label>
                 <input
                   className="auth-input"
-                  placeholder="e.g. john_doe"
+                  placeholder="e.g. jon_snow"
                   onKeyDown={handleKey}
                   onChange={(e) => setForm({ ...form, username: e.target.value })}
                 />
