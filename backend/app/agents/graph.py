@@ -57,7 +57,14 @@ def router(state):
     return END   #  THIS routes to interview automatically
 
 
-async def run_graph(user_input: str, user_id: str, chat_id: str, username: str, role: str):
+async def run_graph(
+    user_input: str,
+    user_id: str,
+    chat_id: str,
+    username: str,
+    role: str,
+    history: list[str] | None = None
+):
     graph = StateGraph(State)
 
     graph.add_node("interview", interview_node)
@@ -102,9 +109,10 @@ async def run_graph(user_input: str, user_id: str, chat_id: str, username: str, 
     graph.set_finish_point("scheduler")
 
     app = graph.compile()
+    prior_messages = history or []
 
     result = await app.ainvoke({
-        "messages": [user_input],
+        "messages": prior_messages + [user_input],
         "current_step": "interview",
         "candidate_data": {},
         "user_id": user_id,

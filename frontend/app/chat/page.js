@@ -87,6 +87,7 @@ export default function ChatPage() {
   const [message, setMessage] = useState("");
   const [agentMessages, setAgentMessages] = useState({});  // { agentId: [...msgs] }
   const [loading, setLoading] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(true);
   const [activeAgent, setActiveAgent] = useState(null);
   const [bookedSlots, setBookedSlots] = useState([]);
   const [calendarOpen, setCalendarOpen] = useState(true);
@@ -98,6 +99,12 @@ export default function ChatPage() {
 
   const messages = agentMessages[activeAgent] || [];
 
+  const buildAgentBuckets = () =>
+    agents.reduce((acc, agent) => {
+      acc[agent.id] = [];
+      return acc;
+    }, {});
+
   const setMessages = (updater) => {
     setAgentMessages((prev) => ({
       ...prev,
@@ -106,8 +113,58 @@ export default function ChatPage() {
   };
 
   useEffect(() => {
+    setAgentMessages((prev) => {
+      const next = buildAgentBuckets();
+      Object.entries(prev).forEach(([agentId, agentHistory]) => {
+        next[agentId] = agentHistory;
+      });
+      return next;
+    });
+
+    if (!activeAgent && agents.length > 0) {
+      setActiveAgent(agents[0].id);
+    }
+  }, [role]);
+
+  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [agentMessages, activeAgent, loading]);
+  }, [agentMessages, activeAgent, loading, historyLoading]);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      setHistoryLoading(true);
+      try {
+        const res = await API.get("/chat/history", {
+          headers: { Authorization: `Bearer ${getToken()}` },
+        });
+
+        const groupedMessages = buildAgentBuckets();
+        (res.data?.history || []).forEach((entry) => {
+          const fallbackAgent = entry.type === "research" ? "research" : "interview";
+          const agentId = groupedMessages[entry.agent] !== undefined ? entry.agent : fallbackAgent;
+
+          if (groupedMessages[agentId] === undefined) {
+            groupedMessages[agentId] = [];
+          }
+
+          groupedMessages[agentId].push({
+            role: entry.role,
+            content: entry.content,
+            timestamp: entry.timestamp,
+          });
+        });
+
+        setAgentMessages(groupedMessages);
+      } catch (err) {
+        console.error("Failed to fetch chat history", err);
+        setAgentMessages(buildAgentBuckets());
+      } finally {
+        setHistoryLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, [role]);
 
   useEffect(() => {
     const fetchCalendar = async () => {
@@ -135,7 +192,7 @@ export default function ChatPage() {
     try {
       const res = await API.post(
         "/chat",
-        { message: text },
+        { message: text, agent: activeAgent },
         { headers: { Authorization: `Bearer ${getToken()}` } }
       );
       setMessages((prev) => [...prev, { role: "assistant", content: res.data.response }]);
@@ -297,6 +354,31 @@ export default function ChatPage() {
             color: rgba(167,243,208,0.3);
           }
           .agent-btn.active .agent-btn-tag { color: rgba(16,185,129,0.7); }
+          .agent-btn-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 2px;
+          }
+          .agent-history-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 6px;
+            border-radius: 999px;
+            border: 1px solid rgba(52,211,153,0.18);
+            background: rgba(16,185,129,0.08);
+            color: rgba(167,243,208,0.55);
+            font-family: 'Space Mono', monospace;
+            font-size: 8px;
+            font-weight: 700;
+          }
+          .agent-btn.active .agent-history-count {
+            border-color: rgba(16,185,129,0.35);
+            color: #6ee7b7;
+          }
 
           .admin-divider {
             height: 1px; background: rgba(52,211,153,0.08);
@@ -652,7 +734,12 @@ export default function ChatPage() {
                   <div className="agent-icon">{agent.icon}</div>
                   <div className="agent-btn-text">
                     <div className="agent-btn-name">{agent.label}</div>
-                    <div className="agent-btn-tag">{agent.tag}</div>
+                    <div className="agent-btn-meta">
+                      <div className="agent-btn-tag">{agent.tag}</div>
+                      {!!agentMessages[agent.id]?.length && (
+                        <span className="agent-history-count">{agentMessages[agent.id].length}</span>
+                      )}
+                    </div>
                   </div>
                 </button>
               ))}
@@ -672,8 +759,13 @@ export default function ChatPage() {
                       </div>
                       <div className="agent-btn-text">
                         <div className="agent-btn-name">{agent.label}</div>
-                        <div className="agent-btn-tag" style={{ color: activeAgent === agent.id ? "rgba(167,139,250,0.6)" : undefined }}>
-                          {agent.tag}
+                        <div className="agent-btn-meta">
+                          <div className="agent-btn-tag" style={{ color: activeAgent === agent.id ? "rgba(167,139,250,0.6)" : undefined }}>
+                            {agent.tag}
+                          </div>
+                          {!!agentMessages[agent.id]?.length && (
+                            <span className="agent-history-count">{agentMessages[agent.id].length}</span>
+                          )}
                         </div>
                       </div>
                     </button>
@@ -710,7 +802,15 @@ export default function ChatPage() {
                   </div>
                 )}
 
-                {activeAgent && messages.length === 0 && !loading && (
+                {activeAgent && historyLoading && messages.length === 0 && !loading && (
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flex: 1 }}>
+                    <p style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: "0.08em", color: "rgba(167,243,208,0.25)" }}>
+                      LOADING CONVERSATION HISTORY
+                    </p>
+                  </div>
+                )}
+
+                {activeAgent && !historyLoading && messages.length === 0 && !loading && (
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flex: 1 }}>
                     <p style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: "0.08em", color: "rgba(167,243,208,0.2)" }}>
                        SEND A MESSAGE TO START
