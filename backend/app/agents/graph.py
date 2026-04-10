@@ -44,6 +44,7 @@ def router(state):
         "book a meeting",
         "interview schedule",
         "schedule an interview",
+        "book an interview"
     ]):
         return "scheduler"
 

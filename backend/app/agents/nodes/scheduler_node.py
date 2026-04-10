@@ -9,9 +9,20 @@ def _extract_json_text(text: str) -> str:
         return ""
 
     clean_text = text.strip()
-    fence_match = re.search(r"```(?:json)?\s*(\{.*\})\s*```", clean_text, re.DOTALL)
+    fence_match = re.search(r"```(?:json)?\s*(.*?)\s*```", clean_text, re.DOTALL)
     if fence_match:
-        return fence_match.group(1)
+        clean_text = fence_match.group(1).strip()
+
+    start = clean_text.find("{")
+    if start == -1:
+        return clean_text
+
+    decoder = json.JSONDecoder()
+    try:
+        obj, _ = decoder.raw_decode(clean_text[start:])
+        return json.dumps(obj)
+    except json.JSONDecodeError:
+        return clean_text
 
     return clean_text
 
