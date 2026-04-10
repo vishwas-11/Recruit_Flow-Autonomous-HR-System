@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import API from "@/services/api";
 import { getToken, removeToken, getUserRole } from "@/utils/auth";
 import { useRouter } from "next/navigation";
@@ -88,6 +88,8 @@ export default function ChatPage() {
   const [agentMessages, setAgentMessages] = useState({});  // { agentId: [...msgs] }
   const [loading, setLoading] = useState(false);
   const [activeAgent, setActiveAgent] = useState(null);
+  const [bookedSlots, setBookedSlots] = useState([]);
+  const [calendarOpen, setCalendarOpen] = useState(true);
   const router = useRouter();
   const role = getUserRole();
   const agents = AGENTS[role] || AGENTS.user;
@@ -106,6 +108,20 @@ export default function ChatPage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [agentMessages, activeAgent, loading]);
+
+  useEffect(() => {
+    const fetchCalendar = async () => {
+      try {
+        const res = await API.get("/calendar", {
+          headers: { Authorization: `Bearer ${getToken()}` },
+        });
+        setBookedSlots(res.data || []);
+      } catch (err) {
+        console.error("Failed to fetch calendar", err);
+      }
+    };
+    fetchCalendar();
+  }, []);
 
   const sendMessage = async (overrideText) => {
     const text = overrideText || message;
@@ -449,6 +465,123 @@ export default function ChatPage() {
             font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.07em;
             color: rgba(167,243,208,0.25); text-align: center; padding: 14px;
           }
+
+          /* CALENDAR PANEL */
+          .cal-panel {
+            flex-shrink: 0;
+            border-left: 1px solid rgba(52,211,153,0.1);
+            background: rgba(2,10,8,0.7);
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            transition: width 0.25s ease;
+            width: 480px;
+          }
+          .cal-panel.collapsed { width: 40px; }
+
+          .cal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 16px 12px;
+            border-bottom: 1px solid rgba(52,211,153,0.08);
+            flex-shrink: 0;
+          }
+          .cal-header-left {
+            display: flex; align-items: center; gap: 8px; overflow: hidden;
+          }
+          .cal-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 9px; letter-spacing: 0.14em;
+            color: rgba(167,243,208,0.35);
+            white-space: nowrap;
+          }
+          .cal-count-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: rgba(16,185,129,0.15);
+            border: 1px solid rgba(16,185,129,0.3);
+            color: #6ee7b7;
+            font-family: 'Space Mono', monospace;
+            font-size: 9px; font-weight: 700;
+            width: 18px; height: 18px; border-radius: 999px;
+            flex-shrink: 0;
+          }
+          .cal-toggle {
+            background: transparent; border: none; cursor: pointer;
+            color: rgba(167,243,208,0.3); padding: 2px;
+            display: flex; align-items: center; justify-content: center;
+            transition: color 0.2s; flex-shrink: 0;
+          }
+          .cal-toggle:hover { color: #10b981; }
+
+          .cal-body {
+            flex: 1; overflow: auto; padding: 14px 16px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(16,185,129,0.15) transparent;
+          }
+          .cal-body::-webkit-scrollbar { width: 3px; height: 3px; }
+          .cal-body::-webkit-scrollbar-thumb { background: rgba(16,185,129,0.15); border-radius: 3px; }
+
+          /* GRID */
+          .cal-grid {
+            display: grid;
+            grid-template-columns: 72px repeat(6, 1fr);
+            gap: 5px;
+            min-width: 400px;
+          }
+
+          .cal-grid-corner { /* empty top-left */ }
+
+          .cal-time-header {
+            font-family: 'Space Mono', monospace;
+            font-size: 9px; letter-spacing: 0.08em; font-weight: 700;
+            color: rgba(167,243,208,0.45);
+            text-align: center; padding: 4px 2px;
+          }
+
+          .cal-day-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 9px; letter-spacing: 0.06em; font-weight: 700;
+            color: rgba(167,243,208,0.5);
+            display: flex; align-items: center;
+            padding-right: 6px;
+            white-space: nowrap;
+          }
+
+          .cal-cell {
+            border-radius: 6px;
+            padding: 7px 4px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 8px; letter-spacing: 0.06em; font-weight: 700;
+            transition: background 0.15s;
+          }
+          .cal-cell.available {
+            background: rgba(16,185,129,0.06);
+            border: 1px solid rgba(52,211,153,0.12);
+            color: rgba(167,243,208,0.3);
+          }
+          .cal-cell.booked {
+            background: rgba(220,38,38,0.2);
+            border: 1px solid rgba(220,38,38,0.4);
+            color: #fca5a5;
+          }
+          .cal-cell.available:hover {
+            background: rgba(16,185,129,0.1);
+            border-color: rgba(16,185,129,0.25);
+            color: #6ee7b7;
+          }
+
+          .cal-legend {
+            display: flex; gap: 14px; margin-top: 14px; padding-top: 12px;
+            border-top: 1px solid rgba(52,211,153,0.08);
+          }
+          .cal-legend-item {
+            display: flex; align-items: center; gap: 5px;
+            font-family: 'Space Mono', monospace;
+            font-size: 9px; letter-spacing: 0.07em;
+            color: rgba(167,243,208,0.35);
+          }
+          .cal-legend-dot {
+            width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0;
+          }
         `}</style>
 
         <div className="chat-root">
@@ -469,6 +602,31 @@ export default function ChatPage() {
               <span className={`role-badge ${role === "admin" ? "role-admin" : "role-user"}`}>
                 {role?.toUpperCase()}
               </span>
+              {role === "admin" && (
+                <button
+                  onClick={() => router.push("/admin")}
+                  style={{
+                    display: "flex", alignItems: "center", gap: "6px",
+                    fontFamily: "'Space Mono', monospace", fontSize: "10px",
+                    letterSpacing: "0.1em", fontWeight: 700,
+                    padding: "6px 14px", borderRadius: "6px",
+                    border: "1px solid rgba(167,139,250,0.3)",
+                    background: "rgba(167,139,250,0.08)",
+                    color: "#c4b5fd", cursor: "pointer",
+                    transition: "background 0.2s, border-color 0.2s, color 0.2s",
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "rgba(167,139,250,0.15)"; e.currentTarget.style.borderColor = "rgba(167,139,250,0.5)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "rgba(167,139,250,0.08)"; e.currentTarget.style.borderColor = "rgba(167,139,250,0.3)"; }}
+                >
+                  <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                    <rect x="1" y="1" width="4" height="4" rx="1" stroke="currentColor" strokeWidth="1.1"/>
+                    <rect x="6" y="1" width="4" height="4" rx="1" stroke="currentColor" strokeWidth="1.1"/>
+                    <rect x="1" y="6" width="4" height="4" rx="1" stroke="currentColor" strokeWidth="1.1"/>
+                    <rect x="6" y="6" width="4" height="4" rx="1" stroke="currentColor" strokeWidth="1.1"/>
+                  </svg>
+                  DASHBOARD
+                </button>
+              )}
               <button className="btn-logout" onClick={handleLogout}>
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path d="M4.5 2H2.5C2 2 1.5 2.5 1.5 3V9C1.5 9.5 2 10 2.5 10H4.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
@@ -483,7 +641,7 @@ export default function ChatPage() {
 
             {/* SIDEBAR */}
             <aside className="agent-sidebar">
-              <p className="sidebar-label">// AGENTS</p>
+              <p className="sidebar-label"> AGENTS</p>
 
               {agents.filter(a => !a.adminOnly).map((agent) => (
                 <button
@@ -502,7 +660,7 @@ export default function ChatPage() {
               {role === "admin" && (
                 <>
                   <div className="admin-divider" />
-                  <p className="admin-section-label">// ADMIN ONLY</p>
+                  <p className="admin-section-label"> ADMIN ONLY</p>
                   {agents.filter(a => a.adminOnly).map((agent) => (
                     <button
                       key={agent.id}
@@ -548,14 +706,14 @@ export default function ChatPage() {
                       </svg>
                     </div>
                     <p className="no-agent-title">Select an agent</p>
-                    <p className="no-agent-sub">// CHOOSE FROM THE SIDEBAR TO BEGIN</p>
+                    <p className="no-agent-sub"> CHOOSE FROM THE SIDEBAR TO BEGIN</p>
                   </div>
                 )}
 
                 {activeAgent && messages.length === 0 && !loading && (
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flex: 1 }}>
                     <p style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: "0.08em", color: "rgba(167,243,208,0.2)" }}>
-                      // SEND A MESSAGE TO START
+                       SEND A MESSAGE TO START
                     </p>
                   </div>
                 )}
@@ -602,7 +760,7 @@ export default function ChatPage() {
               {/* Input */}
               <div className="chat-input-bar">
                 {!activeAgent
-                  ? <p className="input-disabled-note">// SELECT AN AGENT FROM THE SIDEBAR TO START CHATTING</p>
+                  ? <p className="input-disabled-note"> SELECT AN AGENT FROM THE SIDEBAR TO START CHATTING</p>
                   : <>
                       <div className="input-wrap">
                         <textarea
@@ -640,6 +798,94 @@ export default function ChatPage() {
                 }
               </div>
             </div>
+
+            {/* CALENDAR PANEL */}
+            <aside className={`cal-panel ${calendarOpen ? "" : "collapsed"}`}>
+              <div className="cal-header">
+                {calendarOpen && (
+                  <div className="cal-header-left">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <rect x="1" y="2" width="10" height="9" rx="1.5" stroke="rgba(167,243,208,0.4)" strokeWidth="1.1"/>
+                      <path d="M4 1V3M8 1V3M1 5H11" stroke="rgba(167,243,208,0.4)" strokeWidth="1.1" strokeLinecap="round"/>
+                    </svg>
+                    <span className="cal-title"> INTERVIEW SCHEDULE</span>
+                    {bookedSlots.length > 0 && (
+                      <span className="cal-count-badge">{bookedSlots.length}</span>
+                    )}
+                  </div>
+                )}
+                <button className="cal-toggle" onClick={() => setCalendarOpen(o => !o)} title={calendarOpen ? "Collapse" : "Expand"}>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    {calendarOpen
+                      ? <path d="M9 2L5 7L9 12" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                      : <path d="M5 2L9 7L5 12" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                    }
+                  </svg>
+                </button>
+              </div>
+
+              {calendarOpen && (
+                <div className="cal-body">
+                  {(() => {
+                    const DAYS  = ["monday","tuesday","wednesday","thursday","friday"];
+                    const TIMES = ["10am","11am","12pm","1pm","2pm","3pm"];
+                    const LABELS = { "10am":"10AM","11am":"11AM","12pm":"12PM","1pm":"1PM","2pm":"2PM","3pm":"3PM" };
+                    const DAY_SHORT = { monday:"MON",tuesday:"TUE",wednesday:"WED",thursday:"THU",friday:"FRI" };
+
+                    // build booked lookup from API data: key = "monday-10am"
+                    const bookedMap = {};
+                    bookedSlots.forEach(e => {
+                      const key = `${(e.date||"").toLowerCase()}-${(e.time||"").toLowerCase()}`;
+                      bookedMap[key] = true;
+                    });
+
+                    const bookedCount = Object.keys(bookedMap).length;
+
+                    return (
+                      <>
+                        <div className="cal-grid">
+                          {/* Top-left corner */}
+                          <div className="cal-grid-corner" />
+
+                          {/* Time headers */}
+                          {TIMES.map(t => (
+                            <div key={t} className="cal-time-header">{LABELS[t]}</div>
+                          ))}
+
+                          {/* Day rows */}
+                          {DAYS.map(day => (
+                            <React.Fragment key={day}>
+                              <div className="cal-day-label">{DAY_SHORT[day]}</div>
+                              {TIMES.map(time => {
+                                const key = `${day}-${time}`;
+                                const isBooked = bookedMap[key];
+                                return (
+                                  <div key={key} className={`cal-cell ${isBooked ? "booked" : "available"}`}>
+                                    {isBooked ? "BOOKED" : "FREE"}
+                                  </div>
+                                );
+                              })}
+                            </React.Fragment>
+                          ))}
+                        </div>
+
+                        <div className="cal-legend">
+                          <div className="cal-legend-item">
+                            <div className="cal-legend-dot" style={{ background: "rgba(220,38,38,0.4)", border: "1px solid rgba(220,38,38,0.5)" }} />
+                            BOOKED ({bookedCount})
+                          </div>
+                          <div className="cal-legend-item">
+                            <div className="cal-legend-dot" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(52,211,153,0.2)" }} />
+                            FREE ({DAYS.length * TIMES.length - bookedCount})
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
+            </aside>
+
           </div>
         </div>
       </>
