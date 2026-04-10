@@ -4,10 +4,11 @@ from datetime import datetime
 events_collection = db["events"]
 
 
-async def check_conflict(date: str, time: str):
+async def check_conflict(date: str, time: str, user_id: str):
     existing = await events_collection.find_one({
         "date": date,
-        "time": time
+        "time": time,
+        "user_id": user_id
     })
     return existing is not None
 

@@ -61,7 +61,7 @@ Message:
 
     print("Extracted:", date, time)
 
-    # 🔧 Create event
+    #  Create event
     result = await create_event_tool(user_id, date, time)
 
     if not result["success"]:
