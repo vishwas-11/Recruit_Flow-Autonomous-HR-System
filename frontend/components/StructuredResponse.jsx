@@ -109,41 +109,79 @@ export default function StructuredResponse({ data }) {
       {/* Onboarding — Employee Created */}
       {data.employee_id && (
         <div style={{
-          background: "rgba(16,185,129,0.07)",
-          border: "1px solid rgba(16,185,129,0.25)",
-          borderRadius: "10px",
-          padding: "14px 16px",
-          display: "flex", flexDirection: "column", gap: "8px",
+          width: "100%",
+          background: "linear-gradient(180deg, rgba(16,185,129,0.1), rgba(6,28,21,0.92))",
+          border: "1px solid rgba(16,185,129,0.22)",
+          borderRadius: "12px",
+          padding: "14px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "12px",
+          boxShadow: "inset 0 1px 0 rgba(167,243,208,0.05)",
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <div style={{
-              width: "20px", height: "20px", borderRadius: "50%",
-              background: "rgba(16,185,129,0.15)",
-              border: "1px solid rgba(16,185,129,0.4)",
-              display: "flex", alignItems: "center", justifyContent: "center",
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
+              <div style={{
+                width: "24px", height: "24px", borderRadius: "999px",
+                background: "rgba(16,185,129,0.14)",
+                border: "1px solid rgba(16,185,129,0.35)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0,
+              }}>
+                <svg width="12" height="12" viewBox="0 0 10 10" fill="none">
+                  <path d="M2 5L4 7L8 3" stroke="#10b981" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: 0 }}>
+                <span style={{ color: "rgba(167,243,208,0.45)", fontSize: "10px", letterSpacing: "0.12em" }}>
+                  ONBOARDING STATUS
+                </span>
+                <span style={{ color: "#6ee7b7", fontSize: "13px", letterSpacing: "0.08em", fontWeight: 700 }}>
+                  EMPLOYEE CREATED
+                </span>
+              </div>
+            </div>
+            <span style={{
+              color: "rgba(167,243,208,0.5)",
+              fontSize: "10px",
+              letterSpacing: "0.1em",
+              whiteSpace: "nowrap",
               flexShrink: 0,
             }}>
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                <path d="M2 5L4 7L8 3" stroke="#10b981" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <span style={{ color: "#6ee7b7", fontSize: "12px", letterSpacing: "0.08em", fontWeight: 700 }}>
-              EMPLOYEE CREATED
+              ACTIVE
             </span>
           </div>
+
           <div style={{ height: "1px", background: "rgba(52,211,153,0.1)" }} />
-          <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-            <div style={{ display: "flex", gap: "10px" }}>
-              <span style={{ color: "rgba(167,243,208,0.4)", fontSize: "10px", letterSpacing: "0.1em", minWidth: "70px" }}>ID</span>
-              <span style={{ color: "#d1fae5" }}>{data.employee_id}</span>
-            </div>
-            {data.directory && (
-              <div style={{ display: "flex", gap: "10px" }}>
-                <span style={{ color: "rgba(167,243,208,0.4)", fontSize: "10px", letterSpacing: "0.1em", minWidth: "70px" }}>DIRECTORY</span>
-                <span style={{ color: "#d1fae5" }}>{data.directory}</span>
-              </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "88px minmax(0, 1fr)", gap: "8px 12px", alignItems: "start" }}>
+            <span style={{ color: "rgba(167,243,208,0.4)", fontSize: "10px", letterSpacing: "0.1em" }}>ID</span>
+            <span style={{ color: "#ecfdf5", fontSize: "12px", fontWeight: 700, wordBreak: "break-word" }}>
+              {data.employee_id}
+            </span>
+
+            {data.welcome_file && (
+              <>
+                <span style={{ color: "rgba(167,243,208,0.4)", fontSize: "10px", letterSpacing: "0.1em" }}>FILE</span>
+                <span style={{ color: "#d1fae5", fontSize: "12px", wordBreak: "break-word" }}>
+                  {data.welcome_file}
+                </span>
+              </>
+            )}
+
+            {data.storage && (
+              <>
+                <span style={{ color: "rgba(167,243,208,0.4)", fontSize: "10px", letterSpacing: "0.1em" }}>STORAGE</span>
+                <span style={{ color: "#d1fae5", fontSize: "12px", wordBreak: "break-word" }}>
+                  {data.storage}
+                </span>
+              </>
             )}
           </div>
+
+          <p style={{ margin: 0, color: "rgba(209,250,229,0.62)", fontSize: "11px", lineHeight: 1.7 }}>
+            The welcome file is available for the onboarded employee in the chat workspace.
+          </p>
         </div>
       )}
 
