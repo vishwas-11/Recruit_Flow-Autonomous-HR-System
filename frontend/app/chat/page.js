@@ -105,6 +105,9 @@ export default function ChatPage() {
   const [historyLoading, setHistoryLoading] = useState(true);
   const [activeAgent, setActiveAgent] = useState(null);
   const [bookedSlots, setBookedSlots] = useState([]);
+  const [employeeRecord, setEmployeeRecord] = useState(null);
+  const [employeeLoading, setEmployeeLoading] = useState(true);
+  const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(true);
   const router = useRouter();
   const role = getUserRole();
@@ -122,6 +125,21 @@ export default function ChatPage() {
       setBookedSlots(res.data || []);
     } catch (err) {
       console.error("Failed to fetch calendar", err);
+    }
+  };
+
+  const fetchEmployeeRecord = async () => {
+    setEmployeeLoading(true);
+    try {
+      const res = await API.get("/employee/me", {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      setEmployeeRecord(res.data || { is_employee: false });
+    } catch (err) {
+      console.error("Failed to fetch employee record", err);
+      setEmployeeRecord({ is_employee: false });
+    } finally {
+      setEmployeeLoading(false);
     }
   };
 
@@ -194,6 +212,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     fetchCalendar();
+    fetchEmployeeRecord();
   }, []);
 
   const sendMessage = async (overrideText) => {
@@ -253,6 +272,8 @@ export default function ChatPage() {
   };
 
   const currentAgent = activeAgent ? agents.find(a => a.id === activeAgent) : null;
+  const isEmployee = role === "user" && employeeRecord?.is_employee;
+  const welcomeDocument = employeeRecord?.welcome_document;
 
   return (
     <ProtectedRoute>
@@ -694,6 +715,112 @@ export default function ChatPage() {
           .cal-legend-dot {
             width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0;
           }
+
+          .employee-card {
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 14px;
+            background:
+              linear-gradient(180deg, rgba(16,185,129,0.08), rgba(5,20,16,0.92)),
+              radial-gradient(circle at top right, rgba(110,231,183,0.14), transparent 45%);
+            border: 1px solid rgba(52,211,153,0.16);
+            box-shadow: inset 0 1px 0 rgba(167,243,208,0.05);
+          }
+          .employee-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+          }
+          .employee-card-kicker {
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.14em;
+            color: rgba(110,231,183,0.72);
+            margin-bottom: 6px;
+          }
+          .employee-card-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: #ecfdf5;
+            line-height: 1.1;
+          }
+          .employee-card-meta {
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            color: rgba(167,243,208,0.42);
+            margin-top: 4px;
+          }
+          .employee-card-copy {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            line-height: 1.7;
+            color: rgba(209,250,229,0.68);
+            margin-bottom: 14px;
+          }
+          .employee-card-button {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(16,185,129,0.28);
+            background: rgba(16,185,129,0.12);
+            color: #6ee7b7;
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, transform 0.15s;
+          }
+          .employee-card-button:hover {
+            background: rgba(16,185,129,0.18);
+            border-color: rgba(16,185,129,0.42);
+            transform: translateY(-1px);
+          }
+          .employee-file-viewer {
+            margin-top: 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(52,211,153,0.14);
+            background: rgba(2,12,10,0.8);
+            overflow: hidden;
+          }
+          .employee-file-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(52,211,153,0.08);
+            background: rgba(16,185,129,0.05);
+          }
+          .employee-file-name {
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            color: rgba(167,243,208,0.55);
+          }
+          .employee-file-storage {
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.08em;
+            color: rgba(110,231,183,0.6);
+          }
+          .employee-file-content {
+            margin: 0;
+            padding: 14px 12px 16px;
+            white-space: pre-wrap;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            line-height: 1.75;
+            color: #d1fae5;
+          }
         `}</style>
 
         <div className="chat-root">
@@ -1013,6 +1140,47 @@ export default function ChatPage() {
                       </>
                     );
                   })()}
+
+                  {!employeeLoading && isEmployee && (
+                    <div className="employee-card">
+                      <div className="employee-card-header">
+                        <div>
+                          <p className="employee-card-kicker">EMPLOYEE ACCESS</p>
+                          <h3 className="employee-card-title">Welcome file ready</h3>
+                          <p className="employee-card-meta">
+                            {employeeRecord?.employee_id ? `ID ${employeeRecord.employee_id}` : "ONBOARDED"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <p className="employee-card-copy">
+                        Your onboarding file is stored in MongoDB and available here whenever you need it.
+                      </p>
+
+                      <button
+                        className="employee-card-button"
+                        onClick={() => setWelcomeOpen((open) => !open)}
+                        type="button"
+                      >
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                          <path d="M2 2.5H10M2 6H10M2 9.5H7.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                        </svg>
+                        {welcomeOpen ? "HIDE WELCOME FILE" : "VIEW WELCOME FILE"}
+                      </button>
+
+                      {welcomeOpen && (
+                        <div className="employee-file-viewer">
+                          <div className="employee-file-header">
+                            <span className="employee-file-name">{welcomeDocument?.file_name || "welcome.txt"}</span>
+                            <span className="employee-file-storage">{welcomeDocument?.stored_in || "MongoDB"}</span>
+                          </div>
+                          <pre className="employee-file-content">
+                            {welcomeDocument?.content || "Welcome file content is not available for this employee yet."}
+                          </pre>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </aside>

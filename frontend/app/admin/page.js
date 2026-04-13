@@ -374,19 +374,19 @@ function AdminDashboard() {
                   {/* EMPLOYEES */}
                   {activeTab === "employees" && (
                     <>
-                      <div className="table-header-row" style={{ gridTemplateColumns: "1fr 1fr 2fr" }}>
+                      <div className="table-header-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
                         <span className="th">USERNAME</span>
                         <span className="th">EMPLOYEE ID</span>
-                        <span className="th">DIRECTORY</span>
+                        <span className="th">WELCOME FILE</span>
                       </div>
                       <div className="table-body">
                         {employees.length === 0 ? (
                           <div className="empty-state"><p> NO EMPLOYEES FOUND</p></div>
                         ) : employees.map((emp, i) => (
-                          <div key={i} className="table-row" style={{ gridTemplateColumns: "1fr 1fr 2fr" }}>
+                          <div key={i} className="table-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
                             <span className="td td-primary">{emp.username || "—"}</span>
                             <span className="td">{emp.employee_id || "—"}</span>
-                            <span className="td">{emp.directory || "—"}</span>
+                            <span className="td">{emp.welcome_document?.file_name || emp.welcome_file || "—"}</span>
                           </div>
                         ))}
                       </div>

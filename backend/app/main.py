@@ -4,6 +4,7 @@ from app.api import chat, auth
 from dotenv import load_dotenv
 from app.api import admin
 from app.api.calendar import router as calendar_router
+from app.api.employee import router as employee_router
 
 load_dotenv()
 
@@ -24,6 +25,7 @@ app.include_router(auth.router, prefix="/auth")
 app.include_router(chat.router, prefix="/chat")
 app.include_router(admin.router, prefix="/admin")   
 app.include_router(calendar_router, prefix="/calendar")
+app.include_router(employee_router, prefix="/employee")
 
 
 @app.get("/")
