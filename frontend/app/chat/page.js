@@ -114,6 +114,17 @@ export default function ChatPage() {
 
   const messages = agentMessages[activeAgent] || [];
 
+  const fetchCalendar = async () => {
+    try {
+      const res = await API.get("/calendar", {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      setBookedSlots(res.data || []);
+    } catch (err) {
+      console.error("Failed to fetch calendar", err);
+    }
+  };
+
   const buildAgentBuckets = () =>
     agents.reduce((acc, agent) => {
       acc[agent.id] = [];
@@ -182,16 +193,6 @@ export default function ChatPage() {
   }, [role]);
 
   useEffect(() => {
-    const fetchCalendar = async () => {
-      try {
-        const res = await API.get("/calendar", {
-          headers: { Authorization: `Bearer ${getToken()}` },
-        });
-        setBookedSlots(res.data || []);
-      } catch (err) {
-        console.error("Failed to fetch calendar", err);
-      }
-    };
     fetchCalendar();
   }, []);
 
@@ -210,7 +211,21 @@ export default function ChatPage() {
         { message: text, agent: activeAgent },
         { headers: { Authorization: `Bearer ${getToken()}` } }
       );
-      setMessages((prev) => [...prev, { role: "assistant", content: res.data.response }]);
+      const responseContent = res.data.response;
+      const responseText =
+        typeof responseContent === "string"
+          ? responseContent
+          : JSON.stringify(responseContent);
+
+      setMessages((prev) => [...prev, { role: "assistant", content: responseContent }]);
+
+      if (
+        activeAgent === "scheduler" ||
+        /interview scheduled on/i.test(responseText) ||
+        /booked/i.test(responseText)
+      ) {
+        await fetchCalendar();
+      }
     } catch (err) {
       console.error(err);
       setMessages((prev) => [...prev, { role: "assistant", content: "Something went wrong. Please try again." }]);
