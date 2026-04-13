@@ -80,6 +80,21 @@ const AGENTS = {
       examples: ["Research John Smith's LinkedIn and GitHub", "Find top React engineers in Bangalore", "Scrape salary benchmarks for senior devs"],
       adminOnly: true,
     },
+    {
+      id: "onboarding",
+      label: "Onboarding Agent",
+      tag: "ONBOARD",
+      desc: "Create employee onboarding workspaces and setup files for newly hired team members.",
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2.5V13.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+          <path d="M3 8H13" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+          <rect x="2.5" y="2.5" width="11" height="11" rx="2.5" stroke="currentColor" strokeWidth="1.2"/>
+        </svg>
+      ),
+      examples: ["Onboard John Doe", "Create employee Priya Sharma", "Hire Alex and set up their onboarding files"],
+      adminOnly: true,
+    },
   ],
 };
 
@@ -413,7 +428,7 @@ export default function ChatPage() {
             color: #6ee7b7;
             flex-shrink: 0;
           }
-          .context-tag.research {
+          .context-tag.admin-agent {
             background: rgba(167,139,250,0.1);
             border-color: rgba(167,139,250,0.25);
             color: #c4b5fd;
@@ -473,7 +488,7 @@ export default function ChatPage() {
           }
           .avatar-user { background: linear-gradient(135deg, #10b981, #059669); color: #fff; box-shadow: 0 0 10px rgba(16,185,129,0.3); }
           .avatar-bot  { background: rgba(16,185,129,0.08); border: 1px solid rgba(52,211,153,0.2); color: #10b981; }
-          .avatar-research { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); color: #c4b5fd; }
+          .avatar-admin-agent { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); color: #c4b5fd; }
 
           .msg-label {
             font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.1em;
@@ -780,7 +795,7 @@ export default function ChatPage() {
               {/* Agent context bar */}
               {currentAgent && (
                 <div className="agent-context-bar">
-                  <span className={`context-tag ${currentAgent.id === "research" ? "research" : ""}`}>
+                  <span className={`context-tag ${currentAgent.adminOnly ? "admin-agent" : ""}`}>
                     {currentAgent.tag}
                   </span>
                   <span className="context-desc">{currentAgent.desc}</span>
@@ -822,7 +837,7 @@ export default function ChatPage() {
                   <div key={i} className={`msg-row ${msg.role === "user" ? "user" : ""}`}>
                     <div className={`msg-avatar ${
                       msg.role === "user" ? "avatar-user"
-                      : currentAgent?.id === "research" ? "avatar-research"
+                      : currentAgent?.adminOnly ? "avatar-admin-agent"
                       : "avatar-bot"
                     }`}>
                       {msg.role === "user" ? "YOU" : currentAgent?.tag?.slice(0,2) || "AI"}
@@ -840,7 +855,7 @@ export default function ChatPage() {
 
                 {loading && (
                   <div className="msg-row">
-                    <div className={`msg-avatar ${currentAgent?.id === "research" ? "avatar-research" : "avatar-bot"}`}>
+                    <div className={`msg-avatar ${currentAgent?.adminOnly ? "avatar-admin-agent" : "avatar-bot"}`}>
                       {currentAgent?.tag?.slice(0,2) || "AI"}
                     </div>
                     <div>
@@ -872,6 +887,7 @@ export default function ChatPage() {
                             currentAgent?.id === "interview" ? "Ask about interviews or request a question set..." :
                             currentAgent?.id === "scheduler" ? "Schedule, reschedule, or check availability..." :
                             currentAgent?.id === "research"  ? "Research a candidate, company, or market..." :
+                            currentAgent?.id === "onboarding" ? "Onboard a new hire or create an employee workspace..." :
                             "Type a message..."
                           }
                           onChange={(e) => {
