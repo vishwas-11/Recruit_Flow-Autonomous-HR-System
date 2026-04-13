@@ -34,65 +34,6 @@ def create_token(data: dict):
     return jwt.encode(data, SECRET, algorithm="HS256")
 
 
-# ------------------------
-# REGISTER
-# ------------------------
-# @router.post("/register")
-# async def register(user: UserCreate):
-
-#     #  Check if email already exists
-#     existing_user = await users_collection.find_one({"email": user.email})
-
-#     if existing_user:
-#         raise HTTPException(status_code=400, detail="Email already registered")
-
-#     #  Optional: ensure username is unique
-#     existing_username = await users_collection.find_one({"username": user.username})
-
-#     if existing_username:
-#         raise HTTPException(status_code=400, detail="Username already taken")
-
-#     new_user = {
-#         "username": user.username,   #  used later in onboarding
-#         "email": user.email,
-#         "password": hash_password(user.password)
-#     }
-
-#     result = await users_collection.insert_one(new_user)
-
-#     return {
-#         "message": "User created successfully",
-#         "user_id": str(result.inserted_id)
-#     }
-
-
-# # ------------------------
-# # LOGIN (EMAIL BASED)
-# # ------------------------
-# @router.post("/login")
-# async def login(user: UserLogin):
-
-#     db_user = await users_collection.find_one({"email": user.email})
-
-#     if not db_user:
-#         raise HTTPException(status_code=404, detail="User not found")
-
-#     if not verify_password(user.password, db_user["password"]):
-#         raise HTTPException(status_code=401, detail="Invalid credentials")
-
-#     token = create_token({
-#         "sub": user.email,
-#         "user_id": str(db_user["_id"]),
-#         "username": db_user["username"]   #  IMPORTANT for onboarding
-#     })
-
-#     return {"access_token": token}
-
-
-
-
-
-
 
 
 @router.post("/register")
