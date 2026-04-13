@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://recruit-flow-autonomous-hr-system.onrender.com",
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
 export default API;
