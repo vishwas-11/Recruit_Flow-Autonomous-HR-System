@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import ShapeGrid from "@/components/ShapeGrid";
 
 const features = [
   {
@@ -65,7 +66,6 @@ export default function Home() {
 
   return (
     <>
-      {/* Google Fonts */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap');
 
@@ -80,18 +80,18 @@ export default function Home() {
 
         .mono { font-family: 'Space Mono', monospace; }
 
-        /* Grid bg */
+        /* Modified grid-bg to work with ShapeGrid */
         .grid-bg {
           position: absolute;
           inset: 0;
           background-image:
-            linear-gradient(rgba(16,185,129,0.06) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(16,185,129,0.06) 1px, transparent 1px);
+            linear-gradient(rgba(16,185,129,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(16,185,129,0.03) 1px, transparent 1px);
           background-size: 60px 60px;
           mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent);
+          pointer-events: none;
         }
 
-        /* Glow orb */
         .orb {
           position: absolute;
           border-radius: 50%;
@@ -99,7 +99,6 @@ export default function Home() {
           pointer-events: none;
         }
 
-        /* Hero animations */
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(24px); }
           to   { opacity: 1; transform: translateY(0); }
@@ -110,18 +109,13 @@ export default function Home() {
         .fade-up-4 { animation: fadeUp 0.7s 0.45s ease both; }
         .fade-up-5 { animation: fadeUp 0.7s 0.6s ease both; }
 
-        @keyframes pulse-ring {
-          0%   { transform: scale(1);   opacity: 0.6; }
-          100% { transform: scale(1.8); opacity: 0; }
-        }
-
-        /* Feature card hover */
         .feat-card {
           background: rgba(16,185,129,0.04);
           border: 1px solid rgba(52,211,153,0.12);
           border-radius: 12px;
           padding: 28px;
           transition: border-color 0.25s, background 0.25s, transform 0.25s;
+          backdrop-filter: blur(4px);
         }
         .feat-card:hover {
           border-color: rgba(16,185,129,0.4);
@@ -129,7 +123,6 @@ export default function Home() {
           transform: translateY(-3px);
         }
 
-        /* CTA button */
         .btn-primary {
           display: inline-flex;
           align-items: center;
@@ -156,7 +149,8 @@ export default function Home() {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: transparent;
+          background: rgba(2, 12, 10, 0.6);
+          backdrop-filter: blur(8px);
           border: 1px solid rgba(52,211,153,0.35);
           color: #6ee7b7;
           padding: 14px 28px;
@@ -171,327 +165,185 @@ export default function Home() {
           background: rgba(16,185,129,0.08);
           border-color: #10b981;
         }
-
-        /* Step connector */
-        .step-line {
-          position: absolute;
-          top: 20px;
-          left: calc(50% + 28px);
-          right: calc(-50% + 28px);
-          height: 1px;
-          background: linear-gradient(90deg, rgba(16,185,129,0.4), rgba(16,185,129,0.1));
-        }
-
-        /* Stat badge */
-        .stat-badge {
-          background: rgba(16,185,129,0.08);
-          border: 1px solid rgba(16,185,129,0.2);
-          border-radius: 8px;
-          padding: 16px 24px;
-          text-align: center;
-        }
       `}</style>
 
-      <Navbar />
+      {/* Background Layer */}
+      <div style={{ position: "fixed", inset: 0, zIndex: 0 }}>
+        <ShapeGrid 
+          direction="diagonal"
+          speed={0.3}
+          borderColor="rgba(16, 185, 129, 0.1)"
+          hoverFillColor="rgba(16, 185, 129, 0.15)"
+          squareSize={50}
+          hoverTrailAmount={4}
+        />
+      </div>
 
-      <main style={{ paddingTop: "64px" }}>
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <Navbar />
 
-        {/* ─── HERO ─── */}
-        <section style={{ position: "relative", minHeight: "100vh", display: "flex", alignItems: "center", overflow: "hidden" }}>
-          <div className="grid-bg" />
-          {/* Glow orbs */}
-          <div className="orb" style={{ width: 600, height: 600, background: "rgba(16,185,129,0.12)", top: -100, left: "50%", transform: "translateX(-50%)" }} />
-          <div className="orb" style={{ width: 300, height: 300, background: "rgba(5,150,105,0.15)", top: 200, right: -80 }} />
+        <main style={{ paddingTop: "64px" }}>
+          
+          {/* ─── HERO ─── */}
+          <section style={{ position: "relative", minHeight: "100vh", display: "flex", alignItems: "center", overflow: "hidden" }}>
+            <div className="grid-bg" />
+            <div className="orb" style={{ width: 600, height: 600, background: "rgba(16,185,129,0.12)", top: -100, left: "50%", transform: "translateX(-50%)" }} />
+            <div className="orb" style={{ width: 300, height: 300, background: "rgba(5,150,105,0.15)", top: 200, right: -80 }} />
 
-          <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem", position: "relative", zIndex: 1, width: "100%" }}>
-            {/* Status pill */}
-            <div className="fade-up-1" style={{ display: "inline-flex", alignItems: "center", gap: "8px", marginBottom: "2rem" }}>
-              <span style={{
-                fontFamily: "'Space Mono', monospace",
-                fontSize: "11px",
-                letterSpacing: "0.1em",
-                color: "#10b981",
-                background: "rgba(16,185,129,0.1)",
-                border: "1px solid rgba(16,185,129,0.25)",
-                padding: "5px 14px",
-                borderRadius: "999px",
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-              }}>
+            <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem", position: "relative", zIndex: 1, width: "100%" }}>
+              <div className="fade-up-1" style={{ display: "inline-flex", alignItems: "center", gap: "8px", marginBottom: "2rem" }}>
                 <span style={{
-                  width: "6px", height: "6px", borderRadius: "50%",
-                  background: "#10b981",
-                  boxShadow: "0 0 8px #10b981",
-                  display: "inline-block",
-                }} />
-                AI-POWERED HIRING OS — V2.0
-              </span>
+                  fontFamily: "'Space Mono', monospace",
+                  fontSize: "11px",
+                  letterSpacing: "0.1em",
+                  color: "#10b981",
+                  background: "rgba(16,185,129,0.1)",
+                  border: "1px solid rgba(16,185,129,0.25)",
+                  padding: "5px 14px",
+                  borderRadius: "999px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}>
+                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px #10b981", display: "inline-block" }} />
+                  AI-POWERED HIRING OS — V2.0
+                </span>
+              </div>
+
+              <h1 className="fade-up-2" style={{
+                fontFamily: "'Syne', sans-serif",
+                fontWeight: 800,
+                fontSize: "clamp(42px, 7vw, 88px)",
+                lineHeight: 1.0,
+                letterSpacing: "-0.03em",
+                color: "#ecfdf5",
+                marginBottom: "1.5rem",
+                maxWidth: "800px",
+              }}>
+                Hire faster.<br />
+                <span style={{ color: "#10b981" }}>Onboard smarter.</span>
+              </h1>
+
+              <p className="fade-up-3" style={{
+                fontFamily: "'Space Mono', monospace",
+                fontSize: "clamp(13px, 1.6vw, 16px)",
+                color: "rgba(167,243,208,0.6)",
+                lineHeight: 1.8,
+                maxWidth: "520px",
+                marginBottom: "2.5rem",
+              }}>
+                RecruitFlow automates every step — from sourcing and screening to offer letters and onboarding — so your team can focus on people, not process.
+              </p>
+
+              <div className="fade-up-4" style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
+                <button className="btn-primary" onClick={() => router.push("/auth")}>
+                  START HIRING NOW
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M2 7H12M8 3L12 7L8 11" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                <button className="btn-ghost">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <circle cx="7" cy="7" r="5.5" stroke="#6ee7b7" strokeWidth="1.2"/>
+                    <path d="M5.5 5L9 7L5.5 9V5Z" fill="#6ee7b7"/>
+                  </svg>
+                  WATCH DEMO
+                </button>
+              </div>
+
+              <div className="fade-up-5" style={{ display: "flex", gap: "32px", marginTop: "4rem", paddingTop: "3rem", borderTop: "1px solid rgba(52,211,153,0.1)", flexWrap: "wrap" }}>
+                {[
+                  { val: "4x", label: "faster time-to-hire" },
+                  { val: "92%", label: "candidate match accuracy" },
+                  { val: "10k+", label: "hires powered" },
+                ].map(({ val, label }) => (
+                  <div key={label}>
+                    <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "36px", color: "#10b981", letterSpacing: "-0.03em" }}>{val}</div>
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: "0.08em", color: "rgba(167,243,208,0.5)", marginTop: "4px", textTransform: "uppercase" }}>{label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
+          </section>
 
-            {/* Headline */}
-            <h1 className="fade-up-2" style={{
-              fontFamily: "'Syne', sans-serif",
-              fontWeight: 800,
-              fontSize: "clamp(42px, 7vw, 88px)",
-              lineHeight: 1.0,
-              letterSpacing: "-0.03em",
-              color: "#ecfdf5",
-              marginBottom: "1.5rem",
-              maxWidth: "800px",
-            }}>
-              Hire faster.<br />
-              <span style={{ color: "#10b981" }}>Onboard smarter.</span>
-            </h1>
+          {/* ─── FEATURES ─── */}
+          <section style={{ padding: "120px 1.5rem", position: "relative" }}>
+            <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+              <div style={{ marginBottom: "16px" }}>
+                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: "0.15em", color: "#10b981" }}>// CAPABILITIES</span>
+              </div>
+              <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(28px, 4vw, 48px)", color: "#ecfdf5", letterSpacing: "-0.02em", marginBottom: "64px", maxWidth: "520px", lineHeight: 1.15 }}>
+                Everything your talent team needs.
+              </h2>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "20px" }}>
+                {features.map((f) => (
+                  <div key={f.tag} className="feat-card">
+                    <div style={{ marginBottom: "16px" }}>{f.icon}</div>
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "10px", letterSpacing: "0.14em", color: "rgba(16,185,129,0.6)", marginBottom: "10px" }}>{f.tag}</div>
+                    <h3 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "18px", color: "#ecfdf5", marginBottom: "10px" }}>{f.title}</h3>
+                    <p style={{ fontFamily: "'Space Mono', monospace", fontSize: "12px", lineHeight: 1.8, color: "rgba(167,243,208,0.55)" }}>{f.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
 
-            {/* Subheadline */}
-            <p className="fade-up-3" style={{
-              fontFamily: "'Space Mono', monospace",
-              fontSize: "clamp(13px, 1.6vw, 16px)",
-              color: "rgba(167,243,208,0.6)",
-              lineHeight: 1.8,
-              maxWidth: "520px",
-              marginBottom: "2.5rem",
-            }}>
-              RecruitFlow automates every step — from sourcing and screening to offer letters and onboarding — so your team can focus on people, not process.
-            </p>
+          {/* ─── HOW IT WORKS ─── */}
+          <section style={{ padding: "100px 1.5rem", background: "rgba(16,185,129,0.03)", borderTop: "1px solid rgba(52,211,153,0.08)", borderBottom: "1px solid rgba(52,211,153,0.08)" }}>
+            <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+              <div style={{ marginBottom: "16px" }}>
+                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: "0.15em", color: "#10b981" }}>HOW IT WORKS :</span>
+              </div>
+              <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(26px, 4vw, 44px)", color: "#ecfdf5", letterSpacing: "-0.02em", marginBottom: "64px" }}>Four steps. Zero friction.</h2>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "32px" }}>
+                {steps.map((s, i) => (
+                  <div key={s.num} style={{ position: "relative" }}>
+                    <div style={{ width: "40px", height: "40px", borderRadius: "10px", border: "1px solid rgba(16,185,129,0.35)", background: "rgba(16,185,129,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Space Mono', monospace", fontSize: "12px", color: "#10b981", marginBottom: "20px", fontWeight: 700 }}>{s.num}</div>
+                    <h4 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "17px", color: "#ecfdf5", marginBottom: "10px" }}>{s.title}</h4>
+                    <p style={{ fontFamily: "'Space Mono', monospace", fontSize: "12px", lineHeight: 1.8, color: "rgba(167,243,208,0.5)" }}>{s.desc}</p>
+                    {i < steps.length - 1 && (
+                      <div style={{ position: "absolute", top: "20px", left: "48px", right: "-16px", height: "1px", background: "linear-gradient(90deg, rgba(16,185,129,0.3), transparent)" }} />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
 
-            {/* CTA row */}
-            <div className="fade-up-4" style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
-              <button className="btn-primary" onClick={() => router.push("/auth")}>
-                START HIRING NOW
+          {/* ─── CTA BANNER ─── */}
+          <section style={{ padding: "120px 1.5rem", position: "relative", overflow: "hidden" }}>
+            <div className="orb" style={{ width: 500, height: 500, background: "rgba(16,185,129,0.1)", top: "50%", left: "50%", transform: "translate(-50%,-50%)" }} />
+            <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
+              <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(30px, 5vw, 58px)", color: "#ecfdf5", letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: "1.5rem" }}>
+                Ready to modernize<br /><span style={{ color: "#10b981" }}>your hiring stack?</span>
+              </h2>
+              <p style={{ fontFamily: "'Space Mono', monospace", fontSize: "13px", color: "rgba(167,243,208,0.55)", lineHeight: 1.8, marginBottom: "2.5rem" }}>
+                Join hundreds of companies already using RecruitFlow to build better teams, faster.
+              </p>
+              <button className="btn-primary" onClick={() => router.push("/auth")} style={{ fontSize: "14px", padding: "16px 40px" }}>
+                GET STARTED FREE
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path d="M2 7H12M8 3L12 7L8 11" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
-              <button className="btn-ghost">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <circle cx="7" cy="7" r="5.5" stroke="#6ee7b7" strokeWidth="1.2"/>
-                  <path d="M5.5 5L9 7L5.5 9V5Z" fill="#6ee7b7"/>
-                </svg>
-                WATCH DEMO
-              </button>
             </div>
+          </section>
 
-            {/* Stats row */}
-            <div className="fade-up-5" style={{
-              display: "flex",
-              gap: "32px",
-              marginTop: "4rem",
-              paddingTop: "3rem",
-              borderTop: "1px solid rgba(52,211,153,0.1)",
-              flexWrap: "wrap",
-            }}>
-              {[
-                { val: "4x", label: "faster time-to-hire" },
-                { val: "92%", label: "candidate match accuracy" },
-                { val: "10k+", label: "hires powered" },
-              ].map(({ val, label }) => (
-                <div key={label}>
-                  <div style={{
-                    fontFamily: "'Syne', sans-serif",
-                    fontWeight: 800,
-                    fontSize: "36px",
-                    color: "#10b981",
-                    letterSpacing: "-0.03em",
-                  }}>{val}</div>
-                  <div style={{
-                    fontFamily: "'Space Mono', monospace",
-                    fontSize: "11px",
-                    letterSpacing: "0.08em",
-                    color: "rgba(167,243,208,0.5)",
-                    marginTop: "4px",
-                    textTransform: "uppercase",
-                  }}>{label}</div>
-                </div>
+          {/* ─── FOOTER ─── */}
+          <footer style={{ borderTop: "1px solid rgba(52,211,153,0.1)", padding: "32px 1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px", maxWidth: "1200px", margin: "0 auto" }}>
+            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", color: "rgba(167,243,208,0.35)", letterSpacing: "0.06em" }}>
+              © 2026 RECRUITFLOW — ALL SYSTEMS OPERATIONAL
+            </span>
+            <div style={{ display: "flex", gap: "24px" }}>
+              {["Privacy", "Terms", "Status"].map(l => (
+                <a key={l} href="#" style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", color: "rgba(167,243,208,0.35)", textDecoration: "none", letterSpacing: "0.06em" }}>
+                  {l.toUpperCase()}
+                </a>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* ─── FEATURES ─── */}
-        <section style={{ padding: "120px 1.5rem", position: "relative" }}>
-          <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-            {/* Section label */}
-            <div style={{ marginBottom: "16px" }}>
-              <span style={{
-                fontFamily: "'Space Mono', monospace",
-                fontSize: "11px",
-                letterSpacing: "0.15em",
-                color: "#10b981",
-              }}>// CAPABILITIES</span>
-            </div>
-            <h2 style={{
-              fontFamily: "'Syne', sans-serif",
-              fontWeight: 800,
-              fontSize: "clamp(28px, 4vw, 48px)",
-              color: "#ecfdf5",
-              letterSpacing: "-0.02em",
-              marginBottom: "64px",
-              maxWidth: "520px",
-              lineHeight: 1.15,
-            }}>
-              Everything your talent team needs.
-            </h2>
-
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-              gap: "20px",
-            }}>
-              {features.map((f) => (
-                <div key={f.tag} className="feat-card">
-                  <div style={{ marginBottom: "16px" }}>{f.icon}</div>
-                  <div style={{
-                    fontFamily: "'Space Mono', monospace",
-                    fontSize: "10px",
-                    letterSpacing: "0.14em",
-                    color: "rgba(16,185,129,0.6)",
-                    marginBottom: "10px",
-                  }}>{f.tag}</div>
-                  <h3 style={{
-                    fontFamily: "'Syne', sans-serif",
-                    fontWeight: 700,
-                    fontSize: "18px",
-                    color: "#ecfdf5",
-                    marginBottom: "10px",
-                  }}>{f.title}</h3>
-                  <p style={{
-                    fontFamily: "'Space Mono', monospace",
-                    fontSize: "12px",
-                    lineHeight: 1.8,
-                    color: "rgba(167,243,208,0.55)",
-                  }}>{f.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ─── HOW IT WORKS ─── */}
-        <section style={{ padding: "100px 1.5rem", background: "rgba(16,185,129,0.03)", borderTop: "1px solid rgba(52,211,153,0.08)", borderBottom: "1px solid rgba(52,211,153,0.08)" }}>
-          <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-            <div style={{ marginBottom: "16px" }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: "0.15em", color: "#10b981" }}>
-                 HOW IT WORKS :
-              </span>
-            </div>
-            <h2 style={{
-              fontFamily: "'Syne', sans-serif",
-              fontWeight: 800,
-              fontSize: "clamp(26px, 4vw, 44px)",
-              color: "#ecfdf5",
-              letterSpacing: "-0.02em",
-              marginBottom: "64px",
-            }}>Four steps. Zero friction.</h2>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "32px" }}>
-              {steps.map((s, i) => (
-                <div key={s.num} style={{ position: "relative" }}>
-                  <div style={{
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "10px",
-                    border: "1px solid rgba(16,185,129,0.35)",
-                    background: "rgba(16,185,129,0.08)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontFamily: "'Space Mono', monospace",
-                    fontSize: "12px",
-                    color: "#10b981",
-                    marginBottom: "20px",
-                    fontWeight: 700,
-                  }}>{s.num}</div>
-                  <h4 style={{
-                    fontFamily: "'Syne', sans-serif",
-                    fontWeight: 700,
-                    fontSize: "17px",
-                    color: "#ecfdf5",
-                    marginBottom: "10px",
-                  }}>{s.title}</h4>
-                  <p style={{
-                    fontFamily: "'Space Mono', monospace",
-                    fontSize: "12px",
-                    lineHeight: 1.8,
-                    color: "rgba(167,243,208,0.5)",
-                  }}>{s.desc}</p>
-                  {/* Connector line */}
-                  {i < steps.length - 1 && (
-                    <div style={{
-                      position: "absolute",
-                      top: "20px",
-                      left: "48px",
-                      right: "-16px",
-                      height: "1px",
-                      background: "linear-gradient(90deg, rgba(16,185,129,0.3), transparent)",
-                    }} />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ─── CTA BANNER ─── */}
-        <section style={{ padding: "120px 1.5rem", position: "relative", overflow: "hidden" }}>
-          <div className="orb" style={{ width: 500, height: 500, background: "rgba(16,185,129,0.1)", top: "50%", left: "50%", transform: "translate(-50%,-50%)" }} />
-          <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
-            <h2 style={{
-              fontFamily: "'Syne', sans-serif",
-              fontWeight: 800,
-              fontSize: "clamp(30px, 5vw, 58px)",
-              color: "#ecfdf5",
-              letterSpacing: "-0.03em",
-              lineHeight: 1.1,
-              marginBottom: "1.5rem",
-            }}>
-              Ready to modernize<br />
-              <span style={{ color: "#10b981" }}>your hiring stack?</span>
-            </h2>
-            <p style={{
-              fontFamily: "'Space Mono', monospace",
-              fontSize: "13px",
-              color: "rgba(167,243,208,0.55)",
-              lineHeight: 1.8,
-              marginBottom: "2.5rem",
-            }}>
-              Join hundreds of companies already using RecruitFlow to build better teams, faster.
-            </p>
-            <button className="btn-primary" onClick={() => router.push("/auth")} style={{ fontSize: "14px", padding: "16px 40px" }}>
-              GET STARTED FREE
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M2 7H12M8 3L12 7L8 11" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-          </div>
-        </section>
-
-        {/* ─── FOOTER ─── */}
-        <footer style={{
-          borderTop: "1px solid rgba(52,211,153,0.1)",
-          padding: "32px 1.5rem",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "16px",
-          maxWidth: "1200px",
-          margin: "0 auto",
-        }}>
-          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", color: "rgba(167,243,208,0.35)", letterSpacing: "0.06em" }}>
-            © 2026 RECRUITFLOW — ALL SYSTEMS OPERATIONAL
-          </span>
-          <div style={{ display: "flex", gap: "24px" }}>
-            {["Privacy", "Terms", "Status"].map(l => (
-              <a key={l} href="#" style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", color: "rgba(167,243,208,0.35)", textDecoration: "none", letterSpacing: "0.06em" }}>
-                {l.toUpperCase()}
-              </a>
-            ))}
-          </div>
-        </footer>
-
-      </main>
+          </footer>
+        </main>
+      </div>
     </>
   );
 }

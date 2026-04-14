@@ -3,6 +3,7 @@ import { useState } from "react";
 import API from "@/services/api";
 import { saveToken } from "@/utils/auth";
 import { useRouter } from "next/navigation";
+import ShapeGrid from "@/components/ShapeGrid";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -50,15 +51,13 @@ export default function AuthPage() {
           overflow: hidden;
         }
 
-        .grid-bg {
+        /* Subtle overlay to improve legibility over the grid */
+        .grid-overlay {
           position: fixed;
           inset: 0;
-          background-image:
-            linear-gradient(rgba(16,185,129,0.06) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(16,185,129,0.06) 1px, transparent 1px);
-          background-size: 60px 60px;
-          mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black, transparent);
+          background: radial-gradient(circle at 50% 50%, transparent 0%, #020c0a 100%);
           pointer-events: none;
+          z-index: 1;
         }
 
         .orb {
@@ -66,6 +65,7 @@ export default function AuthPage() {
           border-radius: 50%;
           filter: blur(80px);
           pointer-events: none;
+          z-index: 1;
         }
 
         @keyframes fadeUp {
@@ -75,15 +75,17 @@ export default function AuthPage() {
 
         .auth-card {
           position: relative;
-          z-index: 1;
+          z-index: 2;
           width: 100%;
           max-width: 420px;
-          background: rgba(5, 20, 16, 0.85);
+          background: rgba(5, 20, 16, 0.7);
           border: 1px solid rgba(52, 211, 153, 0.15);
           border-radius: 16px;
           padding: 40px 36px;
-          backdrop-filter: blur(16px);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
           animation: fadeUp 0.6s ease both;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
         .auth-logo {
@@ -140,13 +142,11 @@ export default function AuthPage() {
           display: block;
         }
 
-        .field-wrap {
-          margin-bottom: 16px;
-        }
+        .field-wrap { margin-bottom: 16px; }
 
         .auth-input {
           width: 100%;
-          background: rgba(16,185,129,0.05);
+          background: rgba(16,185,129,0.08);
           border: 1px solid rgba(52,211,153,0.15);
           border-radius: 8px;
           padding: 11px 14px;
@@ -154,21 +154,20 @@ export default function AuthPage() {
           font-size: 13px;
           color: #d1fae5;
           outline: none;
-          transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+          transition: all 0.2s;
           caret-color: #10b981;
         }
 
         .auth-input::placeholder { color: rgba(167,243,208,0.25); }
-
         .auth-input:focus {
           border-color: rgba(16,185,129,0.5);
-          background: rgba(16,185,129,0.08);
+          background: rgba(16,185,129,0.12);
           box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
         }
 
         .auth-select {
           width: 100%;
-          background: rgba(16,185,129,0.05);
+          background: rgba(16,185,129,0.08);
           border: 1px solid rgba(52,211,153,0.15);
           border-radius: 8px;
           padding: 11px 14px;
@@ -181,12 +180,6 @@ export default function AuthPage() {
           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4L6 8L10 4' stroke='%2310b981' stroke-width='1.5' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");
           background-repeat: no-repeat;
           background-position: right 14px center;
-          transition: border-color 0.2s, background-color 0.2s;
-        }
-
-        .auth-select:focus {
-          border-color: rgba(16,185,129,0.5);
-          box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
         }
 
         .auth-select option { background: #020c0a; color: #d1fae5; }
@@ -210,7 +203,7 @@ export default function AuthPage() {
           color: #fff;
           cursor: pointer;
           box-shadow: 0 0 24px rgba(16,185,129,0.3);
-          transition: box-shadow 0.2s, transform 0.15s, opacity 0.2s;
+          transition: all 0.2s;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -222,12 +215,9 @@ export default function AuthPage() {
           transform: translateY(-1px);
         }
 
-        .btn-submit:active:not(:disabled) { transform: translateY(0); }
         .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .spinner {
           width: 14px;
           height: 14px;
@@ -251,14 +241,10 @@ export default function AuthPage() {
           cursor: pointer;
           text-decoration: underline;
           text-underline-offset: 3px;
-          transition: color 0.2s;
         }
-
-        .toggle-link:hover { color: #6ee7b7; }
 
         .tab-row {
           display: flex;
-          gap: 0;
           background: rgba(16,185,129,0.05);
           border: 1px solid rgba(52,211,153,0.12);
           border-radius: 8px;
@@ -273,11 +259,10 @@ export default function AuthPage() {
           padding: 8px;
           font-family: 'Space Mono', monospace;
           font-size: 11px;
-          letter-spacing: 0.1em;
           color: rgba(167,243,208,0.4);
           cursor: pointer;
           border-radius: 6px;
-          transition: background 0.2s, color 0.2s;
+          transition: all 0.2s;
         }
 
         .tab-btn.active {
@@ -286,14 +271,24 @@ export default function AuthPage() {
           border: 1px solid rgba(16,185,129,0.25);
         }
 
-        .fields-enter {
-          animation: fadeUp 0.3s ease both;
-        }
+        .fields-enter { animation: fadeUp 0.3s ease both; }
       `}</style>
 
       <div className="auth-root">
-        <div className="grid-bg" />
-        <div className="orb" style={{ width: 500, height: 500, background: "rgba(16,185,129,0.1)", top: "50%", left: "50%", transform: "translate(-50%,-50%)" }} />
+        {/* Dynamic Background Layer */}
+        <div style={{ position: "fixed", inset: 0, zIndex: 0 }}>
+          <ShapeGrid 
+            direction="diagonal"
+            speed={0.2}
+            borderColor="rgba(16, 185, 129, 0.12)"
+            hoverFillColor="rgba(16, 185, 129, 0.2)"
+            squareSize={60}
+            hoverTrailAmount={3}
+          />
+        </div>
+
+        <div className="grid-overlay" />
+        <div className="orb" style={{ width: 500, height: 500, background: "rgba(16,185,129,0.15)", top: "50%", left: "50%", transform: "translate(-50%,-50%)" }} />
 
         <div className="auth-card">
           {/* Logo */}
@@ -320,7 +315,6 @@ export default function AuthPage() {
           <div className="auth-heading">{isLogin ? "Welcome back" : "Create account"}</div>
           <div className="auth-sub">{isLogin ? "// ENTER YOUR CREDENTIALS TO CONTINUE" : "// FILL IN DETAILS TO GET STARTED"}</div>
 
-          {/* Register-only fields */}
           {!isLogin && (
             <div className="fields-enter">
               <div className="field-wrap">
@@ -345,7 +339,6 @@ export default function AuthPage() {
             </div>
           )}
 
-          {/* Shared fields */}
           <div className="field-wrap">
             <label className="field-label">EMAIL</label>
             <input
