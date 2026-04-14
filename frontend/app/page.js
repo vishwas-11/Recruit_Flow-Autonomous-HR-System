@@ -270,7 +270,7 @@ export default function Home() {
           <section style={{ padding: "120px 1.5rem", position: "relative" }}>
             <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
               <div style={{ marginBottom: "16px" }}>
-                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: "0.15em", color: "#10b981" }}>// CAPABILITIES</span>
+                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: "0.15em", color: "#10b981" }}>CAPABILITIES</span>
               </div>
               <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(28px, 4vw, 48px)", color: "#ecfdf5", letterSpacing: "-0.02em", marginBottom: "64px", maxWidth: "520px", lineHeight: 1.15 }}>
                 Everything your talent team needs.
